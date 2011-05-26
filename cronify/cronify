@@ -1,0 +1,19 @@
+#!/bin/bash
+# cronify,
+# script to properly wrap things called from cron
+# silent on non-error, outputs only on failure
+#
+# 2011 jeffrey paul <sneak@datavibe.net>
+# 5539 AD00 DE4C 42F3 AFE1  1575 0524 43F4 DF2A 55C2
+
+if [ $# -eq 0 ]; then
+    echo "usage: $0 <args>" > /dev/stderr
+    exit 1
+fi
+
+OUTPUT="`$* 2>&1`"
+
+if [ $? -ne 0 ]; then
+    echo $OUTPUT > /dev/stderr
+    exit $?
+fi
