@@ -95,4 +95,7 @@ if [ -e /Volumes/ApertureScience ]; then
     done
 fi
 
+# FIXME todo do some error checking on the non-mountability of the
+# ApertureScience volume
+
 
