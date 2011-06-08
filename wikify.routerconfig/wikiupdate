@@ -1,0 +1,92 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings qw( all );
+use WWW::Mechanize;
+
+our $u = 'WIKI_USERNAME';
+our $p = 'WIKI_PASSWORD';
+our $wikihost = 'wikihost.com'
+our $debug = 1;
+
+main();
+
+sub main {
+
+    usage() unless @ARGV == 2;
+
+    my $itemname = uc(shift(@ARGV));
+    $itemname =~ s/[^A-Z0-9\-\_\.]//g;
+    my $pagename = $itemname . '/config';
+
+    my $filename = shift(@ARGV);
+
+    open(INFILE,$filename) 
+        or die("$0: can't open input file $filename for reading: $!\n");
+    my $data;
+    read(INFILE,$data,1024*1024,0); #1mb sufficient
+    close(INFILE);
+
+
+    my $mech = WWW::Mechanize->new();
+
+    $mech->credentials(
+        $wikihost . ':443',
+        $wikihost,
+        $u => $p
+    );
+
+    $mech->get('https://' . $wikihost . '/w/index.php?title=Special:Userlogin');
+
+    $mech->submit_form(
+        form_name   => 'userlogin',
+        fields      => {
+            wpName      => $u,
+            wpPassword  => $p,
+        },
+    );
+
+    $data =~ s/[\n\r]+/\n/gm;
+
+    $data =~ s/^ntp clock\-period [0-9]+//gm;
+
+    $data =~ s/^(.*)$/ $1/gm;
+
+    # this wikifies hostnames conforming to a certian format
+    $data =~ s/\b([vV][0-9][0-9][A-Za-z][A-Za-z][0-9][0-9][0-9])\b/\[\[$1\]\]/gm;
+
+    # this wikifies ip addresses
+    $data =~ s/\b([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\b/\[\[$1\]\]/gm;
+
+    $mech->get("https://$wikihost/w/index.php?title=$pagename&action=edit");
+
+    $mech->submit_form(
+        form_name   => 'editform',
+        fields      => {
+            wpTextbox1  => "{{autogen}}\n\n".
+                    "= [[$itemname]] configuration =\n\n".
+                    "<code>$data".
+                    "</code>\n".
+                    "{{autofetched-router}}\n",
+            wpSummary   => "auto-update via script by $u",
+        },
+    );
+
+}
+
+sub usage {
+    print STDERR "usage: $0 <routername> <filename>\n";
+    die;
+}
+
+sub dout {
+    return unless defined($debug) && $debug;
+    my $msg = shift;
+    chomp $msg;
+    print STDERR "*** $msg\n";
+}
+
+
+1;
+
+__END__
