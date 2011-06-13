@@ -60,8 +60,9 @@ set hlsearch
 map N Nzz
 map n nzz
 
-map _t :TlistToggle<cr>
+" map _t :TlistToggle<cr>
 
+colorscheme koehler
 set cul
 "hi CursorLine term=none cterm=none ctermbg=none
 "set t_Co=256
