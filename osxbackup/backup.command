@@ -58,6 +58,7 @@ MINRE=""
 MINRE+=" --exclude=/.fseventsd/"
 MINRE+=" --exclude=/.Spotlight-V100/"
 MINRE+=" --exclude=/.Trashes/"
+MINRE+=" --exclude=/tmp/"
 
 # before anything else, backup gpg keys if any:
 if [ -d ${HOME}/.gnupg ]; then

@@ -12,7 +12,7 @@ noremap! <Right> <Esc>
 au InsertEnter * hi StatusLine term=reverse guibg=#005000
 au InsertLeave * hi StatusLine term=reverse guibg=#444444
 set number
-set tw=75
+set tw=79
 set encoding=utf-8
 setglobal fileencoding=utf-8
 set nobomb
