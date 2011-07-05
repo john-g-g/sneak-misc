@@ -7,8 +7,7 @@
 
 NOW="`date +%Y%m%d.%H%M%S`"
 
-BACKUPHOST=${BACKUPHOST:-"jfk1.datavibe.net"}
-SERVERPATH=${SERVERPATH:-backup/}
+BACKUPDEST=${BACKUPDEST:-"${USER}@jfk1.datavibe.net:backup/"}
 
 RSYNC="/usr/bin/rsync"
 OPTS="-aPSz --no-owner --no-group --delete-excluded --delete-after"
@@ -24,13 +23,8 @@ RE+=" --exclude=/Library/Application?Support/Evernote/"
 RE+=" --exclude=/Library/Application?Support/InsomniaX/"
 RE+=" --exclude=/Music/iTunes/Album?Artwork/"
 RE+=" --exclude=/Documents/Steam?Content/"
-RE+=" --exclude=/tmp/"
-RE+=" --exclude=/.Spotlight-V100/"
-RE+=" --exclude=/.fseventsd/" 
 RE+=" --exclude=/.cpan/build/" 
 RE+=" --exclude=/.cpan/sources/" 
-RE+=" --exclude=/.Trash/"
-RE+=" --exclude=/.Trashes/" 
 RE+=" --exclude=/Library/Logs/"
 # keep your mail on the server!
 RE+=" --exclude=/Library/Mail/"
@@ -48,40 +42,50 @@ RE+=" --exclude=/Library/Safari/HistoryIndex.sk"
 RE+=" --exclude=/Library/Application?Support/CrossOver?Games/"
 RE+=" --exclude=/Library/Preferences/Macromedia/Flash?Player/"
 RE+=" --exclude=/Library/PubSub/"
+# just say no to skynet
 RE+=" --exclude=/Library/Google/"
 RE+=" --exclude=/Library/Cookies/"
-RE+=" --exclude=/.TemporaryItems/"
-RE+=" --exclude=/.rnd/"
 RE+=" --exclude=/Receivd/"
 
 MINRE=""
 MINRE+=" --exclude=/.fseventsd/"
 MINRE+=" --exclude=/.Spotlight-V100/"
+MINRE+=" --exclude=/.Trash/"
 MINRE+=" --exclude=/.Trashes/"
 MINRE+=" --exclude=/tmp/"
+MINRE+=" --exclude=/.TemporaryItems/"
+MINRE+=" --exclude=/.rnd/"
+
+RE+=" ${MINRE}"
 
 # before anything else, backup gpg keys if any:
 if [ -d ${HOME}/.gnupg ]; then
-    $RSYNC $OPTS -c ${HOME}/.gnupg/ ${BACKUPHOST}:${SERVERPATH}/Home/.gnupg/
+    $RSYNC $OPTS -c ${HOME}/.gnupg/ ${BACKUPDEST}/Home/.gnupg/
+fi
+
+if [ -d ${HOME}/Development ]; then
+    $RSYNC $OPTS -c ${HOME}/Development/ \
+        ${BACKUPDEST}/Home/Development/
 fi
 
 RETVAL=255
 while [ $RETVAL -ne 0 ]; do
-    $RSYNC $OPTS $RE ${HOME}/ ${BACKUPHOST}:${SERVERPATH}/Home/ 
+    $RSYNC $OPTS $RE ${HOME}/ ${BACKUPDEST}/Home/ 
     RETVAL=$?
         sleep 1;
 done
 
 RETVAL=255
 while [ $RETVAL -ne 0 ]; do
-    $RSYNC $OPTS $MINRE --exclude=/ApertureScience.sparsebundle/ /Volumes/Storage/ ${BACKUPHOST}:${SERVERPATH}/Storage/ 
+    $RSYNC $OPTS $MINRE --exclude=/ApertureScience.sparsebundle/ \
+        /Volumes/Storage/ ${BACKUPDEST}/Storage/ 
     RETVAL=$?
         sleep 1;
 done
 
 RETVAL=255
 while [ $RETVAL -ne 0 ]; do
-    $RSYNC $OPTS /Applications/ ${BACKUPHOST}:${SERVERPATH}/Applications/ 
+    $RSYNC $OPTS /Applications/ ${BACKUPDEST}/Applications/ 
     RETVAL=$?
         sleep 1;
 done
@@ -91,7 +95,8 @@ open /Volumes/Storage/ApertureScience.sparsebundle
 if [ -e /Volumes/ApertureScience ]; then
     RETVAL=255
     while [ $RETVAL -ne 0 ]; do
-        $RSYNC $OPTS $MINRE /Volumes/ApertureScience/ ${BACKUPHOST}:${SERVERPATH}/ApertureScience/ 
+        $RSYNC $OPTS $MINRE /Volumes/ApertureScience/ \
+            ${BACKUPDEST}/ApertureScience/ 
         RETVAL=$?
         sleep 1;
     done
@@ -99,5 +104,4 @@ fi
 
 # FIXME todo do some error checking on the non-mountability of the
 # ApertureScience volume
-
 
