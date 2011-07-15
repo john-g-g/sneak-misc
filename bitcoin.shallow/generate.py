@@ -1,4 +1,6 @@
 #!/usr/bin/python2.6
+# this script has been totally obsoleted by mtgoxlive.com
+# written by coderrr
 
 import urllib
 import sys

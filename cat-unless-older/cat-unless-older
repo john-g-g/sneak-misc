@@ -1,0 +1,28 @@
+#!/bin/sh
+
+export PATH=""
+
+if [ $# -ne 2 ]; then
+  echo 1>&2 "Usage: $0 <seconds> <file>";
+  exit 127
+fi
+
+SECS=$[ $1 + 0 ]
+
+if [ "$SECS" -lt 1 ]; then
+  echo 1>&2 "error: seconds must be a positive integer"
+  exit 127
+fi
+
+if [ ! -f "$2" ]; then
+  echo 1>&2 "error: invalid file $2"
+  exit 127
+fi
+
+NOW=`/bin/date +%s`
+FILE=`/usr/bin/stat -c '%Z' "$2"`
+FILEAGE=$[ $NOW - $FILE ]
+
+if [ "$FILEAGE" -lt "$SECS" ]; then
+  /bin/cat "$2"
+fi
