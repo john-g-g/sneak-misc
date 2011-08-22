@@ -15,6 +15,7 @@ OPTS="-aPSz --no-owner --no-group --delete-excluded --delete-after"
 RE=""
 # Dropbox syncs itself just fine:
 RE+=" --exclude=/Dropbox/"
+RE+=" --exclude=/Desktop/" # desktop is like a visible tempdir.
 RE+=" --exclude=/Library/Safari/"
 RE+=" --exclude=/Downloads/" 
 RE+=" --exclude=/Library/Application?Support/Ableton/"
@@ -63,6 +64,7 @@ if [ -d ${HOME}/.gnupg ]; then
     $RSYNC $OPTS -c ${HOME}/.gnupg/ ${BACKUPDEST}/Home/.gnupg/
 fi
 
+# high priority stuff first:
 if [ -d ${HOME}/Development ]; then
     $RSYNC $OPTS -c ${HOME}/Development/ \
         ${BACKUPDEST}/Home/Development/
@@ -77,31 +79,8 @@ done
 
 RETVAL=255
 while [ $RETVAL -ne 0 ]; do
-    $RSYNC $OPTS $MINRE --exclude=/ApertureScience.sparsebundle/ \
-        /Volumes/Storage/ ${BACKUPDEST}/Storage/ 
-    RETVAL=$?
-        sleep 1;
-done
-
-RETVAL=255
-while [ $RETVAL -ne 0 ]; do
     $RSYNC $OPTS /Applications/ ${BACKUPDEST}/Applications/ 
     RETVAL=$?
         sleep 1;
 done
-
-open /Volumes/Storage/ApertureScience.sparsebundle
-
-if [ -e /Volumes/ApertureScience ]; then
-    RETVAL=255
-    while [ $RETVAL -ne 0 ]; do
-        $RSYNC $OPTS $MINRE /Volumes/ApertureScience/ \
-            ${BACKUPDEST}/ApertureScience/ 
-        RETVAL=$?
-        sleep 1;
-    done
-fi
-
-# FIXME todo do some error checking on the non-mountability of the
-# ApertureScience volume
 
