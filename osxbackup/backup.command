@@ -10,7 +10,7 @@ NOW="`date +%Y%m%d.%H%M%S`"
 BACKUPDEST=${BACKUPDEST:-"${USER}@jfk1.datavibe.net:backup/"}
 
 RSYNC="/usr/bin/rsync"
-OPTS="-aPSz --no-owner --no-group --delete-excluded --delete-after"
+OPTS="-rlptDPSyz --no-owner --no-group --delete-excluded --delete"
 
 RE=""
 # Dropbox syncs itself just fine:
@@ -46,7 +46,9 @@ RE+=" --exclude=/Library/PubSub/"
 # just say no to skynet
 RE+=" --exclude=/Library/Google/"
 RE+=" --exclude=/Library/Cookies/"
+RE+=" --exclude=/Library/Preferences/SDMHelpData/"
 RE+=" --exclude=/Receivd/"
+RE+=" --exclude=/Library/Application?Support/Steam/SteamApps/"
 
 MINRE=""
 MINRE+=" --exclude=/.fseventsd/"
@@ -81,6 +83,22 @@ RETVAL=255
 while [ $RETVAL -ne 0 ]; do
     $RSYNC $OPTS /Applications/ ${BACKUPDEST}/Applications/ 
     RETVAL=$?
-        sleep 1;
+    sleep 1;
 done
 
+if [ "${BACKUPDEST::16}" = "/Volumes/imac1tb" ]; then
+    echo "no need to backup to same disk"
+    exit 0
+fi
+
+BASE="/Volumes/imac1tb/sneak.data"
+for DIR in Movies Music Pictures ; do
+    if [ -d "${BASE}/${DIR}/" ]; then 
+        RETVAL=255
+        while [ $RETVAL -ne 0 ]; do
+            $RSYNC $OPTS "${BASE}/${DIR}/" "${BACKUPDEST}/${DIR}/"
+            RETVAL=$?
+            sleep 1;
+        done
+    fi
+done
