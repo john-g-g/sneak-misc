@@ -14,6 +14,6 @@ fi
 OUTPUT="`$* 2>&1`"
 
 if [ $? -ne 0 ]; then
-    echo $OUTPUT > /dev/stderr
+    echo "$OUTPUT" > /dev/stderr
     exit $?
 fi
