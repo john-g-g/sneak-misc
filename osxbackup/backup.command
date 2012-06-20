@@ -10,11 +10,11 @@ NOW="`date +%Y%m%d.%H%M%S`"
 BACKUPDEST=${BACKUPDEST:-"${USER}@jfk1.datavibe.net:backup/"}
 
 RSYNC="/usr/bin/rsync"
-OPTS="-rlptDPSyz --no-owner --no-group --delete-excluded --delete"
+OPTS="-rlptDPSyzh --no-owner --no-group --delete-excluded --delete"
 
 RE=""
 # Dropbox syncs itself just fine:
-RE+=" --exclude=/Dropbox/"
+RE+=" --exclude=/Documents/Dropbox/"
 RE+=" --exclude=/Desktop/" # desktop is like a visible tempdir.
 RE+=" --exclude=/Library/Safari/"
 RE+=" --exclude=/Downloads/" 
@@ -24,6 +24,7 @@ RE+=" --exclude=/Library/Application?Support/Evernote/"
 RE+=" --exclude=/Library/Application?Support/InsomniaX/"
 RE+=" --exclude=/Music/iTunes/Album?Artwork/"
 RE+=" --exclude=/Documents/Steam?Content/"
+RE+=" --exclude=/.dropbox/" 
 RE+=" --exclude=/.cpan/build/" 
 RE+=" --exclude=/.cpan/sources/" 
 RE+=" --exclude=/Library/Logs/"
@@ -43,13 +44,11 @@ RE+=" --exclude=/Library/Safari/HistoryIndex.sk"
 RE+=" --exclude=/Library/Application?Support/CrossOver?Games/"
 RE+=" --exclude=/Library/Preferences/Macromedia/Flash?Player/"
 RE+=" --exclude=/Library/PubSub/"
-# just say no to skynet
-RE+=" --exclude=/Library/Google/"
 RE+=" --exclude=/Library/Cookies/"
 RE+=" --exclude=/Library/Preferences/SDMHelpData/"
 RE+=" --exclude=/Receivd/"
 RE+=" --exclude=/Library/Application?Support/Steam/SteamApps/"
-
+RE+=" --exclude=/VirtualBox?VMs/"
 MINRE=""
 MINRE+=" --exclude=/.fseventsd/"
 MINRE+=" --exclude=/.Spotlight-V100/"
@@ -58,19 +57,9 @@ MINRE+=" --exclude=/.Trashes/"
 MINRE+=" --exclude=/tmp/"
 MINRE+=" --exclude=/.TemporaryItems/"
 MINRE+=" --exclude=/.rnd/"
+MINRE+=" --exclude=.DS_Store"
 
 RE+=" ${MINRE}"
-
-# before anything else, backup gpg keys if any:
-if [ -d ${HOME}/.gnupg ]; then
-    $RSYNC $OPTS -c ${HOME}/.gnupg/ ${BACKUPDEST}/Home/.gnupg/
-fi
-
-# high priority stuff first:
-if [ -d ${HOME}/Development ]; then
-    $RSYNC $OPTS -c ${HOME}/Development/ \
-        ${BACKUPDEST}/Home/Development/
-fi
 
 RETVAL=255
 while [ $RETVAL -ne 0 ]; do
@@ -92,7 +81,7 @@ if [ "${BACKUPDEST::16}" = "/Volumes/imac1tb" ]; then
 fi
 
 BASE="/Volumes/imac1tb/sneak.data"
-for DIR in Movies Music Pictures ; do
+for DIR in Movies Pictures ; do
     if [ -d "${BASE}/${DIR}/" ]; then 
         RETVAL=255
         while [ $RETVAL -ne 0 ]; do
