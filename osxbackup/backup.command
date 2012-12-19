@@ -9,12 +9,10 @@ NOW="`date +%Y%m%d.%H%M%S`"
 
 BACKUPDEST=${BACKUPDEST:-"${USER}@jfk1.datavibe.net:backup/"}
 
-RSYNC="/usr/bin/rsync"
+RSYNC="rsync.3.0.9"
 OPTS="-rlptDPSyzh --no-owner --no-group --delete-excluded --delete"
 
 RE=""
-# Dropbox syncs itself just fine:
-RE+=" --exclude=/Documents/Dropbox/"
 RE+=" --exclude=/Desktop/" # desktop is like a visible tempdir.
 RE+=" --exclude=/Library/Safari/"
 RE+=" --exclude=/Downloads/" 
@@ -25,6 +23,7 @@ RE+=" --exclude=/Library/Application?Support/InsomniaX/"
 RE+=" --exclude=/Music/iTunes/Album?Artwork/"
 RE+=" --exclude=/Documents/Steam?Content/"
 RE+=" --exclude=/.dropbox/" 
+RE+=" --exclude=/Documents/Dropbox/.dropbox.cache/" 
 RE+=" --exclude=/.cpan/build/" 
 RE+=" --exclude=/.cpan/sources/" 
 RE+=" --exclude=/Library/Logs/"
@@ -34,6 +33,7 @@ RE+=" --exclude=/Library/Mail?Downloads/"
 RE+=" --exclude=/Library/Application?Support/SecondLife/cache/"
 RE+=" --exclude=/Library/Caches/"
 RE+=" --exclude=/Library/Developer/Xcode/DerivedData/"
+RE+=" --exclude=/Library/Developer/Shared/Documentation/"
 RE+=" --exclude=/Library/iTunes/iPhone?Software?Updates/"
 RE+=" --exclude=/Library/iTunes/iPad?Software?Updates/"
 RE+=" --exclude=/Pictures/iPod?Photo?Cache/"
@@ -73,21 +73,4 @@ while [ $RETVAL -ne 0 ]; do
     $RSYNC $OPTS /Applications/ ${BACKUPDEST}/Applications/ 
     RETVAL=$?
     sleep 1;
-done
-
-if [ "${BACKUPDEST::16}" = "/Volumes/imac1tb" ]; then
-    echo "no need to backup to same disk"
-    exit 0
-fi
-
-BASE="/Volumes/imac1tb/sneak.data"
-for DIR in Movies Pictures ; do
-    if [ -d "${BASE}/${DIR}/" ]; then 
-        RETVAL=255
-        while [ $RETVAL -ne 0 ]; do
-            $RSYNC $OPTS "${BASE}/${DIR}/" "${BACKUPDEST}/${DIR}/"
-            RETVAL=$?
-            sleep 1;
-        done
-    fi
 done
