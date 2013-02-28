@@ -7,12 +7,13 @@
 
 NOW="`date +%Y%m%d.%H%M%S`"
 
-BACKUPDEST=${BACKUPDEST:-"${USER}@jfk1.datavibe.net:backup/"}
+BACKUPDEST=${BACKUPDEST:-"/Volumes/ExternalBackup/sneak.backup"}
 
 RSYNC="rsync.3.0.9"
 OPTS="-rlptDPSyzh --no-owner --no-group --delete-excluded --delete"
 
 RE=""
+RE+=" --exclude=.cache/"
 RE+=" --exclude=/Desktop/" # desktop is like a visible tempdir.
 RE+=" --exclude=/Library/Safari/"
 RE+=" --exclude=/Downloads/" 
@@ -60,6 +61,11 @@ MINRE+=" --exclude=/.rnd/"
 MINRE+=" --exclude=.DS_Store"
 
 RE+=" ${MINRE}"
+
+if [ ! -e "${BACKUPDEST}" ]; then
+    echo "backup destination $BACKUPDEST not available!" > /dev/stderr
+    exit 127
+fi
 
 RETVAL=255
 while [ $RETVAL -ne 0 ]; do
