@@ -11,16 +11,24 @@ SUFFIX = "$(NO_COLOR)"
 
 default: backup
 
-backup: clean
+backup: clean mailoffsite databackup
+
+dvbackup:
 	@echo $(PREFIX) $@ $(SUFFIX)
 	cd ~/Documents/datavibe/backup && make
+
+imapbackup:
 	offlineimap
 	rsync -e "ssh -c arcfour -o Compression=no -x" \
 		-avPhzy --delete sneak@datavibe.net:.maildir/ \
 		$(HOME)/Documents/Archival/mail/sneak.datavibe.net.maildir/
+
+mailoffsite: imapbackup
 	rsync -e "ssh -c arcfour -o Compression=no -x" \
 		-avPhzy --delete $(HOME)/Documents/Archival/mail/ \
 		sneak@datavibe.net:.mailbackup/
+
+databackup: dvbackup imapbackup
 	backup.command
 
 clean:
