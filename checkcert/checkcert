@@ -100,12 +100,12 @@ class Website(object):
         return self.url.geturl()
     def check(self):
         if self.r.status_code is not 200:
-            raise ReachabilityProblem
+            raise ReachabilityProblem("can't access: '%s'" % self.urlstring())
         if self.is_tls():
             self._get_cert()
             if self.cert.expiresSoon() or not self.cert.validTime():
                 raise CertificateProblem(
-                    "cert for %s expires soon: %s" % (
+                    "cert for %s is invalid or expires soon: %s" % (
                         self.urlstring(),
                         self.cert.notAfter()   
                     )
@@ -128,12 +128,13 @@ class Website(object):
  
 def main():
     if len(sys.argv) < 2:
-        print("usage: %s <url>" % sys.argv[0])
+        print("usage: %s <url> [url2] [url3] [...]" % sys.argv[0])
         sys.exit(1)
-    s = Website(sys.argv[1])
-    s.check()
-    for rurl in s.resources():
-        Website(rurl).check()
+    for site in sys.argv[1:]:
+        s = Website(site)
+        s.check()
+        for u in s.resources():
+            Website(u).check()
 
 if __name__ == '__main__':
     main()
