@@ -3,29 +3,26 @@
 # David Bartle for making a very difficult-to-use ofxclient library
 # 2013 jeffrey paul <sneak@datavibe.net>
 # 5539 AD00 DE4C 42F3 AFE1  1575 0524 43F4 DF2A 55C2
-
 from pprint import pformat
 import os
 import re
 import json
-from ofxclient.request import Builder as OFXClientBuilder
 from scraper import FinancialScraper, MockInstitution
 
-class AmexScraper(FinancialScraper):
+class EtradeScraper(FinancialScraper):
     def getInstitution(self):
         return MockInstitution(
             user=self.user,
             password=self.password,
-            url='https://online.americanexpress.com/myca/ofxdl/desktop/' +
-                'desktopDownload.do?request_type=nl_ofxdownload',
-            org='AMEX',
-            fid='3101'
+            url='https://ofx.etrade.com/cgi-ofx/etradeofx',
+            org='ETRADE BANK',
+            fid='9989'
         )
        
 def main():
-    s = AmexScraper(
-        user=os.environ['AMEXUSERNAME'],
-        password=os.environ['AMEXPASSWORD']
+    s = EtradeScraper(
+        user=os.environ['ETRADEUSERNAME'],
+        password=os.environ['ETRADEPASSWORD']
     )
     print json.dumps(s.scrape())
 
