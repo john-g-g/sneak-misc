@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+
+from pprint import pformat
+
+# lol https://gist.github.com/re4k/3878505
+APIKEY = '3rJOl1ODzm9yZy63FACdg'
+APISECRET = '5jPoQ5kQvMJFDYRNE8bQ4rHuds4xJqhvgNJM4awaE8'
+
+import twitter
+api = twitter.Api()
+#    consumer_key = APIKEY,
+#    consumer_secret = APISECRET
+#)
+
+statuses = api.GetUserTimeline('sneakatdatavibe')
+print pformat([s.__dict__ for s in statuses])
+
+#print api.VerifyCredentials()

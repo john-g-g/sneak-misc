@@ -103,9 +103,17 @@ class Website(object):
             raise ReachabilityProblem("can't access: '%s'" % self.urlstring())
         if self.is_tls():
             self._get_cert()
-            if self.cert.expiresSoon() or not self.cert.validTime():
+            if not self.cert.validTime():
                 raise CertificateProblem(
-                    "cert for %s is invalid or expires soon: %s" % (
+                    "cert for %s is invalid: %s to %s" % (
+                        self.urlstring(),
+                        self.cert.notBefore(),
+                        self.cert.notAfter()   
+                    )
+                )
+            if self.cert.expiresSoon():
+                raise CertificateProblem(
+                    "cert for %s expires soon: %s" % (
                         self.urlstring(),
                         self.cert.notAfter()   
                     )
