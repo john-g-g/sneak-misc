@@ -1,7 +1,7 @@
 #!/Users/sneak/dev/venv-2.7/bin/python
 # shouts to @AskAmex for being a replicant and 
 # David Bartle for making a very difficult-to-use ofxclient library
-# 2012 jeffrey paul <sneak@datavibe.net>
+# 2013 jeffrey paul <sneak@datavibe.net>
 # 5539 AD00 DE4C 42F3 AFE1  1575 0524 43F4 DF2A 55C2
 
 from pprint import pformat
