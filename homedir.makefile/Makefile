@@ -31,14 +31,16 @@ mailoffsite: imapbackup
 databackup: dvbackup imapbackup
 	backup.command
 
-clean:
+cleanup:
+	-mkdir -p $(HOME)/Documents/$(YYYYMM)
+	-mv $(HOME)/Desktop/* $(HOME)/Documents/$(YYYYMM)
+
+clean: cleanup
 	@echo $(PREFIX) $@ $(SUFFIX)
 	@-rm -rf ~/tmp/*
 	@-rm -rf ~/Library/Caches/*
 	@-rm -rf ~/.Trash/*
 	@-rm -rf $(JUNKFILES)
-	-mkdir -p $(HOME)/Documents/$(YYYYMM)
-	-mv $(HOME)/Desktop/* $(HOME)/Documents/$(YYYYMM)
 
 size:
 	du -sh $(HOME)

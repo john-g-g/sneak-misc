@@ -12,6 +12,10 @@ from ofxclient.request import Builder as OFXClientBuilder
 from scraper import FinancialScraper, MockInstitution
 
 class AmexScraper(FinancialScraper):
+    def isBank(self):
+        return False
+    def isCC(self):
+        return True
     def getInstitution(self):
         return MockInstitution(
             user=self.user,

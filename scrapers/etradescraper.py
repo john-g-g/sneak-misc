@@ -10,6 +10,10 @@ import json
 from scraper import FinancialScraper, MockInstitution
 
 class EtradeScraper(FinancialScraper):
+    def isBank(self):
+        return True
+    def isCC(self):
+        return False
     def getInstitution(self):
         return MockInstitution(
             user=self.user,

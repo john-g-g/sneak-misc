@@ -4,6 +4,7 @@
 # 2013 jeffrey paul <sneak@datavibe.net>
 # 5539 AD00 DE4C 42F3 AFE1  1575 0524 43F4 DF2A 55C2
 
+from pprint import pformat
 import os
 import re
 from ofxclient.request import Builder as OFXClientBuilder
@@ -32,8 +33,12 @@ class FinancialScraper(object):
         out = {}
         for acctnum in re.findall(c,r):
             out[acctnum] = {}
+        print(pformat(out))
         c = re.compile(r'<BALAMT>([\d\.\-]+)', re.MULTILINE)
         for acctnum in out.keys():
-            r = b.doQuery(b.ccQuery(acctnum,'19700101000000'))
+            if self.isCC():
+                r = b.doQuery(b.ccQuery(acctnum,'19700101000000'))
+            if self.isBank():
+                r = b.doQuery(b.baQuery(acctnum,'19700101000000','',''))
             out[acctnum]['balance'] = re.findall(c,r)[0]
         return out
