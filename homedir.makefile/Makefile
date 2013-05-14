@@ -37,10 +37,25 @@ cleanup:
 
 clean: cleanup
 	@echo $(PREFIX) $@ $(SUFFIX)
-	@-rm -rf ~/tmp/*
+	@-rm -rf ~/.tmp/*
 	@-rm -rf ~/Library/Caches/*
 	@-rm -rf ~/.Trash/*
 	@-rm -rf $(JUNKFILES)
 
 size:
 	du -sh $(HOME)
+
+lifeboat:
+	mkdir -p $(HOME)/tmp/lifeboat.$(YYYYMM)
+	rsync -avP --exclude='*.pkg' $(HOME)/.ssh/ $(HOME)/tmp/lifeboat.$(YYYYMM)/sshkey/
+	rsync -avP --exclude='*.pkg' $(HOME)/.gnupg/ $(HOME)/tmp/lifeboat.$(YYYYMM)/gnupgkeys/
+	rsync -avP $(HOME)/Library/ApplicationSupport/Bitcoin/wallet.dat \
+		$(HOME)/tmp/lifeboat.$(YYYYMM)/wallet.dat
+	tar -c $(HOME)/tmp/lifeboat.$(YYYYMM) | bzip2 | \
+		gpg --symmetric -a -o $(HOME)/lifeboat.$(YYYYMM).gpg
+	rm -rf $(HOME)/tmp/lifeboat.$(YYYYMM)
+
+verify:
+	duplicity verify --exclude-globbing-filelist \
+		$(HOME)/.local/etc/duplicity.exclude \
+		file:///Volumes/EXTUSB01/dup/ ~
