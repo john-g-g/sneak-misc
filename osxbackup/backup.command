@@ -7,12 +7,20 @@
 
 NOW="`date +%Y%m%d.%H%M%S`"
 
+#RBACKUPDEST=${RBACKUPDEST:-"file:///Volumes/TImeMachine/sneakbackup/"}
 #RBACKUPDEST=${RBACKUPDEST:-"sftp://sneak@datavibe.net/backup"}
 RBACKUPDEST=${RBACKUPDEST:-"file:///Volumes/EXTUSB01/dup/"}
+#RBACKUPDEST=${RBACKUPDEST:-"file:///Volumes/EXTUSB02/dup/"}
 
 #OPTS="--encrypt-sign-key 1921C0F4"
 OPTS+=" -v 5"
 OPTS+=" --exclude-globbing-filelist ${HOME}/.local/etc/duplicity.exclude"
-OPTS+=" --volsize 256"
+OPTS+=" --volsize 1024"
 OPTS+=" --asynchronous-upload"
-duplicity $OPTS $RE ${HOME}/ $RBACKUPDEST
+OPTS+=" --allow-source-mismatch"
+
+if [ "$1" == "--verify" ]; then
+    duplicity verify $OPTS $RBACKUPDEST ${HOME}/
+else 
+    duplicity $EXTRADUPLICITY $OPTS $RE ${HOME}/ $RBACKUPDEST
+fi

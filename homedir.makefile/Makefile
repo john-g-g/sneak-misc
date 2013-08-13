@@ -20,12 +20,12 @@ dvbackup:
 imapbackup:
 	offlineimap
 	rsync -e "ssh -c arcfour -o Compression=no -x" \
-		-avPhzy --delete sneak@datavibe.net:.maildir/ \
+		-avPhzy --delete-after sneak@datavibe.net:.maildir/ \
 		$(HOME)/Documents/Archival/mail/sneak.datavibe.net.maildir/
 
 mailoffsite: imapbackup
 	rsync -e "ssh -c arcfour -o Compression=no -x" \
-		-avPhzy --delete $(HOME)/Documents/Archival/mail/ \
+		-avPhzy --delete-after $(HOME)/Documents/Archival/mail/ \
 		sneak@datavibe.net:.mailbackup/
 
 databackup: dvbackup imapbackup
@@ -47,13 +47,17 @@ size:
 
 lifeboat:
 	mkdir -p $(HOME)/tmp/lifeboat.$(YYYYMM)
-	rsync -avP --exclude='*.pkg' $(HOME)/.ssh/ $(HOME)/tmp/lifeboat.$(YYYYMM)/sshkey/
-	rsync -avP --exclude='*.pkg' $(HOME)/.gnupg/ $(HOME)/tmp/lifeboat.$(YYYYMM)/gnupgkeys/
+	rsync -avP --exclude='*.pkg' $(HOME)/Documents/Secure/ \
+		$(HOME)/tmp/lifeboat.$(YYYYMM)/Secure/
 	rsync -avP $(HOME)/Library/ApplicationSupport/Bitcoin/wallet.dat \
 		$(HOME)/tmp/lifeboat.$(YYYYMM)/wallet.dat
 	tar -c $(HOME)/tmp/lifeboat.$(YYYYMM) | bzip2 | \
 		gpg --symmetric -a -o $(HOME)/lifeboat.$(YYYYMM).gpg
 	rm -rf $(HOME)/tmp/lifeboat.$(YYYYMM)
+	cp $(HOME)/lifeboat.$(YYYYMM).gpg \
+		$(HOME)/dev/eeqjcdn/sneak.datavibe.net/lifeboat/lifeboat.gpg
+	cd $(HOME)/dev/eeqjcdn && make
+	mv $(HOME)/lifeboat.$(YYYYMM).gpg $(HOME)/Documents/Dropbox/Backups/
 
 verify:
 	duplicity verify --exclude-globbing-filelist \
