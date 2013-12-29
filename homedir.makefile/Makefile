@@ -1,5 +1,6 @@
 JUNKFILES = .bash_history .irb_history .pip .ScanSnap .nbems .fldigi .cpan
 JUNKFILES += .gdb_history .mysql_history .sqlite_history
+BREWPACKAGES := mosh duplicity pv offlineimap wget nmap tor torsocks
 YYYYMM := $(shell date +%Y%m)
 
 NO_COLOR = \033[0m
@@ -63,3 +64,9 @@ verify:
 	duplicity verify --exclude-globbing-filelist \
 		$(HOME)/.local/etc/duplicity.exclude \
 		file:///Volumes/EXTUSB01/dup/ ~
+
+remotebackup:
+	RBACKUPDEST="scp://jp.eeqj.de/backup" $(HOME)/.local/bin/backup.command
+
+packages:
+		brew install $(BREWPACKAGES)
