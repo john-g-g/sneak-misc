@@ -7,20 +7,24 @@
 
 NOW="`date +%Y%m%d.%H%M%S`"
 
-#RBACKUPDEST=${RBACKUPDEST:-"file:///Volumes/TImeMachine/sneakbackup/"}
-#RBACKUPDEST=${RBACKUPDEST:-"sftp://sneak@datavibe.net/backup"}
-RBACKUPDEST=${RBACKUPDEST:-"file:///Volumes/EXTUSB01/dup/"}
-#RBACKUPDEST=${RBACKUPDEST:-"file:///Volumes/EXTUSB02/dup/"}
+BACKUPDEST=${BACKUPDEST:-"sftp://sneak@datavibe.net/backup"}
 
-#OPTS="--encrypt-sign-key 1921C0F4"
+PASSPHRASEFILE="${HOME}/Documents/Secure/backup-password.txt"
+export PASSPHRASE="$(cat $PASSPHRASEFILE)"
+
 OPTS+=" -v 5"
 OPTS+=" --exclude-globbing-filelist ${HOME}/.local/etc/duplicity.exclude"
-OPTS+=" --volsize 1024"
+OPTS+=" --volsize 100"
 OPTS+=" --asynchronous-upload"
 OPTS+=" --allow-source-mismatch"
+GPGOPTS="--compress-algo=bzip2 --bzip2-compress-level=9"
 
 if [ "$1" == "--verify" ]; then
-    duplicity verify $OPTS $RBACKUPDEST ${HOME}/
+    time \
+        duplicity --gpg-options '$GPGOPTS' \
+            verify $OPTS $BACKUPDEST ${HOME}/
 else 
-    duplicity $EXTRADUPLICITY $OPTS $RE ${HOME}/ $RBACKUPDEST
+    time \
+        duplicity --gpg-options "$GPGOPTS" \
+            $EXTRADUPLICITY $OPTS $RE ${HOME}/ $BACKUPDEST
 fi

@@ -2,4 +2,4 @@
 
 HOSTNAME="`hostname -s`"
 export RBACKUPDEST="s3+http://${HOSTNAME}.duplicitybackup"
-backup.command
+source backup.command
