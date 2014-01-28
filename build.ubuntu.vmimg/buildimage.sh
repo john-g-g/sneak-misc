@@ -1,10 +1,14 @@
 #!/bin/bash
 
+set -e
+set -v
+set -x
+
 R="saucy"           # release
 MR="./roottemp"     # mounted root
 RI="./raw.img"      # raw image
 VGN="vmvg0"         # volume group name
-DSIZE="8G"          # disk size
+DSIZE="25G"          # disk size
 
 DATE="$(date +%Y%m%d)"
 LOOPDEV="/dev/loop5"
@@ -20,7 +24,15 @@ function detect_local_mirror () {
         UM="http://${NAME}:${PORT}/ubuntu/"
     fi
     if [ -z "$UM" ]; then
-        echo "http://archive.ubuntu.com/ubuntu/"
+        # maybe try hetzner mirror?
+        UM="http://mirror.hetzner.de/ubuntu/packages/" 
+        TF="${UM}/dists/${R}/Release"
+        MOK="$(curl --head ${TF} 2>&1 | grep '200 OK' | wc -l)"
+        if [ $MOK -gt 0 ]; then
+            echo "$UM"
+        else
+            echo "http://archive.ubuntu.com/ubuntu/"
+        fi  
     else 
         echo "$UM"
     fi
@@ -28,7 +40,6 @@ function detect_local_mirror () {
 
 UM="$(detect_local_mirror)"
 
-set -e
 dd if=/dev/zero of=$RI bs=1 count=0 seek=$DSIZE
 parted -s $RI mklabel msdos
 parted -a optimal $RI mkpart primary 0% 200MiB
@@ -43,10 +54,12 @@ vgcreate $VGN /dev/mapper/${LDBASE}p2
 lvcreate -l 100%FREE -n root $VGN
 mkfs.ext4 -L ROOT /dev/$VGN/root
 mkdir -p $MR
+MR="$(readlink -f $MR)"
 mount /dev/$VGN/root $MR
 mkdir $MR/boot
 mount /dev/mapper/${LDBASE}p1 $MR/boot
 
+echo "*** installing base $R system from $UM..."
 # install base:
 debootstrap --arch amd64 $R $MR $UM
 
@@ -56,6 +69,11 @@ echo "deb $UM $R $RPS" > $MR/etc/apt/sources.list
 for P in updates backports security ; do
     echo "deb $UM $R-$P $RPS" >> $MR/etc/apt/sources.list
 done
+
+cat > $MR/etc/apt/apt.conf.d/99-vm-no-extras-please <<EOF
+APT::Install-Recommends "false";
+APT::Install-Suggest "false";
+EOF
 
 cp /etc/resolv.conf $MR/etc/resolv.conf
 
@@ -76,9 +94,11 @@ RUUID="$(blkid -s UUID -o value /dev/${VGN}/root)"
 
 # this has to come before packages:
 cat > $MR/etc/fstab <<EOF
-proc                    /proc proc defaults                  0  0
-/dev/mapper/$VGN-root   /     ext4 noatime,errors=remount-ro 0  1
-UUID=$BUUID             /boot ext4 noatime                   0  2
+proc                    /proc     proc  defaults                  0  0
+/dev/mapper/$VGN-root   /         ext4  noatime,errors=remount-ro 0  1
+UUID=$BUUID             /boot     ext4  noatime                   0  2
+none                    /tmp      tmpfs defaults                  0  0
+none                    /var/tmp  tmpfs defaults                  0  0
 EOF
 
 cat > $MR/etc/network/interfaces <<EOF
@@ -88,12 +108,10 @@ iface lo inet loopback
 auto eth0
 iface eth0 inet dhcp
 EOF
-HOSTNAME="${R}64-$DATE"
-echo "$HOSTNAME" > $MR/etc/hostname
+echo "localhost" > $MR/etc/hostname
 
 cat > $MR/etc/hosts <<EOF
 127.0.0.1 localhost
-127.0.1.1 $HOSTNAME
 ::1     localhost ip6-localhost ip6-loopback
 fe00::0 ip6-localnet
 ff00::0 ip6-mcastprefix
@@ -108,15 +126,28 @@ mount --bind /proc $MR/proc
 mount --bind /dev $MR/dev
 mount --bind /sys $MR/sys
 
+cat > $MR/usr/sbin/policy-rc.d <<EOF
+#!/bin/bash
+exit 101
+EOF
+chmod +x $MR/usr/sbin/policy-rc.d
+
 chroot $MR <<EOF
 export DEBIAN_FRONTEND=noninteractive
-export RUNLEVEL=1 apt-get -y update
+export RUNLEVEL=1
+apt-get -y update
 
 PACKAGES="
     linux-image-server
     lvm2
     acpid
     avahi-utils
+    jq
+    curl
+    wget
+    openssh-server
+    grub2
+    grub-pc
 "
 apt-get -y install \$PACKAGES
 EOF
@@ -159,13 +190,51 @@ EOF
 chroot $MR /bin/bash -c \
     "DEBIAN_FRONTEND=noninteractive RUNLEVEL=1 apt-get -y upgrade"
 
+#FIXME remove for slim image
+export PACKAGES="
+    build-essential
+    byobu
+    command-not-found
+    daemontools
+    duplicity
+    git-core
+    htop
+    iftop
+    iotop
+    iptraf
+    lsof
+    make
+    make
+    man-db
+    pciutils
+    psmisc
+    pv
+    python-pip
+    rsync
+    screen
+    strace
+    tcpdump
+    traceroute
+    vim
+"
+chroot $MR apt-get -y install $PACKAGES
+
+rm $MR/usr/sbin/policy-rc.d
+
 #####################################################
 ### Local Modifications
 #####################################################
 
+cat > $MR/etc/dhcp/dhclient-exit-hooks.d/hostname <<EOF
+hostname \$new_host_name
+EOF
+
 # install ssh key
 mkdir -p $MR/root/.ssh
 cp /root/.ssh/authorized_keys $MR/root/.ssh/
+
+echo "PasswordAuthentication no" >> $MR/etc/ssh/sshd_config
+echo "UseDNS no" >> $MR/etc/ssh/sshd_config
 
 # clean apt cache
 rm $MR/var/cache/apt/archives/*.deb
@@ -181,37 +250,43 @@ done
 # clear issue
 echo "clear > /etc/issue" | chroot $MR
 
-# run firstboot on boot if exists
-echo "if test -x /firstboot.sh ; then /firstboot.sh ; fi" \
-    >> $MR/etc/rc.local
+# remove instance ssh host keys
+rm $MR/etc/ssh/*key*
 
-# write firstboot file
-cat > $MR/firstboot.sh <<EOF
+# regenerate them on first boot
+cat > $MR/etc/rc.local <<EOF
 #!/bin/bash
-apt-get update
-apt-get -y install openssh-server
-rm /firstboot.sh
+test -f /etc/ssh/ssh_host_dsa_key || dpkg-reconfigure openssh-server
+exit 0
 EOF
-chmod +x $MR/firstboot.sh
-
-#####################################################
-### Clean Up and Write Image
-#####################################################
+chmod +x $MR/etc/rc.local
 
 echo "******************************************************"
 echo "*** Almost done.  Cleaning up..."
 echo "******************************************************"
 
-set +e
-while grep roottemp /proc/mounts ; do
-    for MP in $(cat /proc/mounts | grep roottemp | awk '{print $2}') ; do
-        umount -l $MP
-    done
-    sleep 1
-done
-set -e
+
+umount $MR/proc
+umount $MR/sys
+
+# udev insists on sticking around, kill it:
+fuser -m $MR -k
+sleep 1
+umount $MR/dev
+
+# zero space on boot:
+dd if=/dev/zero of=$MR/boot/zerofile bs=1M || true
+rm $MR/boot/zerofile
+umount $MR/boot
+
+# zero space on root:
+dd if=/dev/zero of=$MR/zerofile bs=1M || true
+rm $MR/zerofile
+
+umount $MR
 
 rmdir $MR
+
 vgchange -a n $VGN
 kpartx -dv $LOOPDEV
 losetup -d $LOOPDEV

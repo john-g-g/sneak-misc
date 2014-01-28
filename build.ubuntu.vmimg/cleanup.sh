@@ -1,5 +1,5 @@
 #!/bin/bash
-MR="./mr"
+MR="./roottemp"
 L="/dev/loop5"
 losetup -d /dev/loop6
 umount $MR/sys
@@ -10,4 +10,6 @@ umount $MR
 vgchange -a n vmvg0
 kpartx -dv $L
 losetup -d $L
-rm -rf mr raw.img
+rmdir $MR
+rm raw.img
+
