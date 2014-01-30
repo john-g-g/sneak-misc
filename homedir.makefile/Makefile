@@ -28,6 +28,10 @@ mailoffsite: imapbackup
 	rsync -e "ssh -c arcfour -o Compression=no -x" \
 		-avPhzy --delete-after $(HOME)/Documents/Archival/mail/ \
 		sneak@datavibe.net:.mailbackup/
+	tar -xvf $(HOME)/Documents/Archival/mail/jp.eeqj.com | gzip > \
+		$(HOME)/Documents/Dropbox/eeqj/archives/mail.tgz.new && \
+		mv $(HOME)/Documents/Dropbox/eeqj/archives/mail.tgz.new \
+			$(HOME)/Documents/Dropbox/eeqj/archives/mail.tgz
 
 databackup: dvbackup imapbackup
 	backup.command
