@@ -1,0 +1,53 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+SETUP_BASE = <<-EOF
+
+set -e
+set -x
+set -v
+
+echo "UseDNS no" >> /etc/ssh/sshd_config
+service ssh restart
+
+apt-get update
+apt-get -y install kpartx debootstrap lvm2 qemu-utils cryptsetup
+
+export CRYPTPASSPHRASE="#{ENV["BACKUP_ENCRYPTION_KEY"]}"
+
+DF="/destdir/backupimage.dat"
+if [ ! -r "$DF" ] ;then
+    # internal laptop disk size, adjust to taste
+    # here's wishing exfat supported sparse files...
+    dd if=/dev/zero of=$DF bs=1 count=0 seek=750G
+    losetup /dev/loop0 $DF
+    echo "$CRYPTPASSPHRASE" | cryptsetup luksFormat /dev/loop0 -
+    echo "$CRYPTPASSPHRASE" | cryptsetup luksOpen /dev/loop0 backup-plain
+    pvcreate /dev/mapper/backup-plain
+    vgcreate backupvg0 /dev/mapper/backup-plain
+    lvcreate -n backup -l 100%FREE backupvg0
+    mkfs.ext4 /dev/backupvg0/backup
+else
+    losetup /dev/loop0 $DF
+    echo "$CRYPTPASSPHRASE" | cryptsetup luksOpen /dev/loop0 backup-plain
+    pvscan && vgscan && lvscan
+fi
+mkdir /mnt/backup
+mount /dev/backupvg0/backup /mnt/backup
+
+EOF
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "ubuntu-12.04"
+  config.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/precise/" + \
+    "current/precise-server-cloudimg-amd64-vagrant-disk1.box"
+  config.vm.synced_folder ENV["HOME"], "/sourcedir"
+  config.vm.synced_folder ENV["DESTDIR"], "/destdir"
+  config.vm.provision "shell", inline: SETUP_BASE
+  config.vm.provider :virtualbox do |vb|
+    vb.customize ["modifyvm", :id, "--memory", "2048"]
+  end
+end
