@@ -14,10 +14,9 @@ export PASSPHRASE="$(cat $PASSPHRASEFILE)"
 
 OPTS+=" -v 5"
 OPTS+=" --exclude-globbing-filelist ${HOME}/.local/etc/duplicity.exclude"
-OPTS+=" --volsize 100"
-OPTS+=" --asynchronous-upload"
-OPTS+=" --allow-source-mismatch"
-GPGOPTS="--compress-algo=bzip2 --bzip2-compress-level=9"
+#OPTS+=" --asynchronous-upload"
+#OPTS+=" --allow-source-mismatch"
+#GPGOPTS="--compress-algo=bzip2 --bzip2-compress-level=9"
 
 if [ "$1" == "--verify" ]; then
     time \
@@ -27,4 +26,11 @@ else
     time \
         duplicity --gpg-options "$GPGOPTS" \
             $EXTRADUPLICITY $OPTS $RE ${HOME}/ $BACKUPDEST
+        echo "attempted backup to $BACKUPDEST"
+    if [ $? ]; then
+        echo "backup failed!" > /dev/stderr
+        exit 127
+    else    
+        echo "Successfully completed backup to ${BACKUPDEST}."
+    fi
 fi
