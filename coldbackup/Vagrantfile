@@ -13,6 +13,7 @@ set -v
 echo "UseDNS no" >> /etc/ssh/sshd_config
 service ssh restart
 
+dpkg --remove-architecture i386 # speeds up update
 apt-get update
 apt-get -y install kpartx debootstrap lvm2 qemu-utils cryptsetup
 
