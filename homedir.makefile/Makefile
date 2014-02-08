@@ -34,6 +34,7 @@ mailoffsite: imapbackup
 			$(HOME)/Documents/Dropbox/eeqj/archives/mail.tgz
 
 databackup: dvbackup imapbackup
+	brew list > $(HOME)/.brewinstalled
 	backup.command
 
 cleanup:
