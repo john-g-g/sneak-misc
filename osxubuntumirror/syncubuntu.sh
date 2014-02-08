@@ -24,6 +24,9 @@ RE+=' --exclude /pool/main/*/*/*.gz'
 RE+=' --exclude /pool/main/k/kde*'
 RE+=' --exclude /pool/main/g/gnome*'
 RE+=' --exclude /pool/main/l/language-pack*'
+RE+=' --exclude /pool/main/l/linux-ec2'
+
+# need english
 RE+=' --include /pool/main/l/language-pack*en*'
 RE+=' --include /pool/main/l/language-support*en*'
 
