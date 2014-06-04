@@ -1,0 +1,45 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANTFILE_API_VERSION = "2"
+
+def get_internet_ifname()
+    inet_if = %x[
+        route get 8.8.8.8 | grep interface | head -1 | awk -F' '  '{print $2}'
+    ].chomp
+
+    ifnames = %x[ VBoxManage list bridgedifs | grep ^Name | cut -b 18- ]
+
+    ifnames.each_line do |l|
+        if (l.start_with?(inet_if))
+            return l.chomp
+        end
+    end
+    return nil
+end
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # All Vagrant configuration is done here. The most common configuration
+  # options are documented and commented below. For a complete reference,
+  # please see the online documentation at vagrantup.com.
+
+  # Every Vagrant virtual environment requires a box to build off of.
+  config.vm.box = "trusty64"
+  config.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/" + \
+    "trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  config.vm.synced_folder \
+    "~/Library/Caches/ubuntu-14.04-apt-archives/", \
+    "/var/cache/apt/archives/", \
+    create: true
+
+  config.vm.network "public_network", bridge: get_internet_ifname()
+
+  config.vm.provider "virtualbox" do |vb|
+  #   vb.gui = true
+    vb.customize ["modifyvm", :id, "--memory", "4096"]
+  end
+
+  config.vm.provision "shell", path: "init.sh"
+end
