@@ -18,16 +18,57 @@ def get_internet_ifname()
     return nil
 end
 
-Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  # All Vagrant configuration is done here. The most common configuration
-  # options are documented and commented below. For a complete reference,
-  # please see the online documentation at vagrantup.com.
+SETUP_BASE = <<ENDPROVISION
+#!/bin/bash
 
-  # Every Vagrant virtual environment requires a box to build off of.
+fallocate -l 10G /swapfile
+mkswap /swapfile
+swapon /swapfile
+
+# first do updates
+export DEBIAN_FRONTEND=noninteractive
+
+if [ -e /mirror/ ] ; then
+cat > /etc/apt/sources.list <<EOF
+deb file:///mirror/ trusty main restricted universe multiverse
+deb file:///mirror/ trusty-updates main restricted universe multiverse
+deb file:///mirror/ trusty-backports main restricted universe multiverse
+deb file:///mirror/ trusty-security main restricted universe multiverse
+EOF
+else
+cat > /etc/apt/sources.list <<EOF
+deb mirror://mirrors.ubuntu.com/mirrors.txt trusty main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-updates main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-backports main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt trusty-security main restricted universe multiverse
+EOF
+fi
+apt-get update
+apt-get -y upgrade
+apt-get -y install daemontools # the only thing that gets preinstalled
+
+mkdir /etc/env
+envdir /etc/env bash -l -c "cd /vagrant && make inside"
+ENDPROVISION
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "trusty64"
   config.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/" + \
     "trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
   # config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  if ENV['OSX_LOCAL_UBUNTU_MIRROR']
+    if File.exists? File.expand_path(ENV['OSX_LOCAL_UBUNTU_MIRROR'])
+        config.vm.synced_folder \
+        File.expand_path(ENV['OSX_LOCAL_UBUNTU_MIRROR']), \
+        "/mirror/", \
+        mount_options: [ 'ro' ]
+    end
+  end
+
+  if Vagrant.has_plugin?("vagrant-cachier")
+    config.cache.auto_detect = true
+  end
 
   config.vm.synced_folder \
     "~/Library/Caches/ubuntu-14.04-apt-archives/", \
@@ -37,9 +78,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network "public_network", bridge: get_internet_ifname()
 
   config.vm.provider "virtualbox" do |vb|
-  #   vb.gui = true
+  # vb.gui = true
+    vb.customize ["modifyvm", :id, "--ioapic", "on"]
+    vb.customize ["modifyvm", :id, "--cpus", "8"]
     vb.customize ["modifyvm", :id, "--memory", "4096"]
   end
 
-  config.vm.provision "shell", path: "init.sh"
+  # we need host key ssh for berkshelf fetching
+  # cookbooks from git private repos
+  config.ssh.forward_agent = true
+
+  config.vm.provision "shell", inline: SETUP_BASE
 end
