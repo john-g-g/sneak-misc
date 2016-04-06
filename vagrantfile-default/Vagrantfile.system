@@ -1,0 +1,42 @@
+# gem install -V --user lost
+# gem install -V --user geocode
+
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell",
+    inline: "modprobe vboxsf"
+end
+
+Vagrant.configure("2") do |config|
+
+  #require 'net/http'
+  #require 'json'
+
+  ubuntuMirror = 'http://mirror.local/ubuntu/'
+
+  #resp = Net::HTTP.get_response(URI.parse(ubuntuMirror))
+
+  #if resp.code != 200
+  #  cc = 'us'
+  #  geoApi = 'http://ip-api.com/json'
+  #  resp = Net::HTTP.get_response(URI.parse(geoApi))
+  #  s = JSON.parse(resp.body)
+  #  if resp['countryCode']
+  #    cc = resp.countryCode.downcase
+  #  end
+  #  ubuntuMirror = "http://#{cc}.archive.ubuntu.com/ubuntu/"
+  #end
+
+  #MTYPES = "main universe"
+  #RELEASE = "trusty"
+  #APTFILE = "/etc/apt/sources.list"
+
+#  if Vagrant.has_plugin?("vagrant-proxyconf")
+#    config.proxy.http     = "http://192.168.0.2:3128/"
+#    config.proxy.https    = "http://192.168.0.2:3128/"
+#  end
+
+  if Vagrant.has_plugin?("vagrant-cachier")
+    config.cache.scope = :box
+  end
+
+end
