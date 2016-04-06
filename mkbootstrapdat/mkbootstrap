@@ -1,0 +1,57 @@
+#!/bin/bash
+
+exec 1> >(logger -s -t mkbootstrap) 2>&1
+
+if [[ ! -d /input/blocks ]]; then
+    echo "unable to find blocksource" > /dev/stderr
+    exit 1
+fi
+
+set -x
+
+JSON="$(curl --user $RPCUSER:$RPCPASSWORD \
+    --max-time 20 \
+    --data-binary \
+    '{"jsonrpc": "1.0", "id":"curltest", "method": "getblockchaininfo", "params": [] }' \
+    -H 'content-type: text/plain;' \
+    http://$RPCHOST:8332/)"
+
+BLOCKS=$(jq -r .result.blocks <<< """$JSON""")
+HEADERS=$(jq -r .result.headers <<< """$JSON""")
+
+if [[ ! $BLOCKS -gt 405749 ]]; then
+    echo "bitcoind does not have full chain yet" > /dev/stderr
+    exit 1
+fi
+
+if [[ ! $HEADERS -gt 405749 ]]; then
+    echo "bitcoind does not have full chain yet" > /dev/stderr
+    exit 1
+fi
+
+if [[ $HEADERS -gt $BLOCKS ]]; then
+    echo "bitcoind does not have full chain yet" > /dev/stderr
+    exit 1
+fi
+
+cd /usr/local/src/bitcoin/contrib/linearize
+C="/etc/linearize.conf"
+
+cat > $C <<EOF
+rpcuser=$RPCUSER
+rpcpassword=$RPCPASSWORD
+host=$RPCHOST
+min_height=0
+max_height=$BLOCKS
+input=/input/blocks
+hashlist=/tmp/hashlist.txt
+output_file=/tmp/bootstrap.dat
+EOF
+
+python ./linearize-hashes.py $C | tee /tmp/hashlist.new &&
+    mv /tmp/hashlist.new /tmp/hashlist.txt
+python ./linearize-data.py $C || exit 1
+YYYYMMDD="$(date -u +%Y%m%d)"
+
+rsync -avP /tmp/bootstrap.dat /output/bootstrap.tmp && \
+    mv /output/bootstrap.tmp /output/bootstrap.$YYYYMMDD.dat
