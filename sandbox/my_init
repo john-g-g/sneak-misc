@@ -1,9 +1,0 @@
-#!/bin/bash
-
-export > /etc/environment
-/usr/sbin/runsvdir-start &
-sleep 1
-if [[ ! -e /var/log/syslog ]]; then
-    touch /var/log/syslog
-fi
-exec tail -qf /var/log/syslog /etc/service/*/log/*.log
