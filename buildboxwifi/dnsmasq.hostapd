@@ -1,0 +1,12 @@
+no-resolv
+interface=wlan1_2
+server=8.8.8.8
+no-hosts
+# eeqj-hostonly
+dhcp-range=172.16.0.101,172.16.0.199,12h
+log-queries
+log-dhcp
+
+interface=wlan1_0
+# eeqj-dut
+dhcp-range=172.16.1.101,172.16.1.199,12h

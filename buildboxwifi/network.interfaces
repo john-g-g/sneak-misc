@@ -1,0 +1,63 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+auto em1
+iface em1 inet static
+    address 0.0.0.0
+# This is an autoconfigured IPv6 interface
+iface em1 inet6 auto
+
+# add wired port to bridge
+allow-hotplug br0
+auto br0
+iface br0 inet dhcp
+    pre-up brctl addbr br0
+    pre-up brctl addif br0 em1
+
+# internal wireless not used
+allow-hotplug wlan0
+auto wlan0
+iface wlan0 inet static
+    address 0.0.0.0
+iface wlan0 inet6 auto
+
+# external ralink usb wifi abg
+allow-hotplug wlan1
+auto wlan1
+iface wlan1 inet static
+    pre-up ifconfig wlan1 hw ether 00:c0:ca:8d:8a:10
+    address 0.0.0.0
+iface wlan1 inet6 auto
+
+# ssid: eeqj-dut
+allow-hotplug wlan1_0
+auto wlan1_0
+iface wlan1_0 inet static
+    address 172.16.1.254
+    netmask 255.255.255.0
+    post-up echo 1 > /proc/sys/net/ipv4/ip_forward
+    post-up iptables -t nat -A POSTROUTING -s 172.16.1.0/24 -o br0 -j MASQUERADE
+    post-up iptables -t nat -A PREROUTING -s 172.16.1.0/24 -p tcp --dport 80 -j REDIRECT --to-ports 10080
+    post-up iptables -t nat -A PREROUTING -s 172.16.1.0/24 -p tcp --dport 443 -j REDIRECT --to-ports 10443
+iface wlan1_0 inet6 auto
+# TODO: setup dnsmasq and nat stuff
+
+# ssid: eeqj-bridge
+# bridge this ssid to the wired port
+allow-hotplug wlan1_1
+iface wlan1_1 inet static
+    address 0.0.0.0
+    up brctl addif br0 wlan1_1
+
+# eeqj-hostonly
+allow-hotplug wlan1_2
+auto wlan1_2
+iface wlan1_2 inet static
+    address 172.16.0.254
+    netmask 255.255.255.0
+iface wlan1_2 inet6 auto
