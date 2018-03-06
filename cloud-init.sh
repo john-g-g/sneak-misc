@@ -11,8 +11,16 @@
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get -y upgrade
-apt-get -y install vim byobu screen build-essential git mosh bash-completion
+apt-get -y install vim byobu screen build-essential git mosh bash-completion golang-go python-pip python3-pip
 
+pip3 install --upgrade pip
+
+pip3 install awscli pipenv aws-shell
+
+curl -L https://github.com/docker/machine/releases/download/v0.14.0/docker-machine-`uname -s`-`uname -m` > /usr/local/bin/docker-machine
+chmod +x /usr/local/bin/docker-machine
+
+# create user if doesn't exist
 if [[ ! -d /home/sneak ]]; then
     useradd -m -s /bin/bash sneak
     usermod -a -G sudo sneak
@@ -38,6 +46,8 @@ if [[ ! -d ~/hacks ]]; then
     cd ~
     git clone https://github.com/sneak/hacks.git
 fi
+
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
 
 mkdir -p ~/.local/bashrc.d
 mkdir -p ~/.local/profile.d
