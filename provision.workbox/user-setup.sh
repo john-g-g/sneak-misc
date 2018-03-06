@@ -30,4 +30,4 @@ mkdir -p ~/.local/profile.d
 mv ~/.profile ~/.local/profile.d/000.distro.profile.sh
 mv ~/.bashrc ~/.local/bashrc.d/000.distro.bashrc.sh
 
-rsync -avP /home/sneak/hacks/homedir.skel/ /home/sneak/
+rsync -avP /home/sneak/hacks/provision.workbox/homedir.skel/ /home/sneak/
