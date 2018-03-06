@@ -52,4 +52,5 @@ if [[ ! -d /home/sneak ]]; then
 fi
 
 # run the rest as sneak:
+cd /var/tmp/hacks/provision.workbox
 sudo -H -u sneak bash user-setup.sh
