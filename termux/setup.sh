@@ -1,10 +1,19 @@
 #!/bin/bash
+
+# install with the following:
+
+# pkg install curl
+# curl -fsSL https://raw.githubusercontent.com/sneak/hacks/master/termux/setup.sh | bash
+
 PKGS="
     bash-completion
     byobu
+    curl
     git
+    golang
     mosh
     vim
+    wget
 "
 
 apt update
