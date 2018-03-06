@@ -1,0 +1,10 @@
+bash-completion
+build-essential
+byobu
+git
+golang-go
+mosh
+python-pip
+python3-pip
+screen
+vim
