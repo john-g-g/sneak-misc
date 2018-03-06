@@ -16,6 +16,7 @@ apt-get -y install vim byobu screen build-essential git mosh bash-completion
 if [[ ! -d /home/sneak ]]; then
     useradd -m -s /bin/bash sneak
     usermod -a -G sudo sneak
+    echo "sneak ALL=NOPASSWD:ALL" > /etc/sudoers.d/sneak
 fi
 
 # run the rest as sneak:
