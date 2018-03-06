@@ -1,8 +1,4 @@
 #!/bin/bash
-#exec 1 2>&1 | tee -a ${LOG_FILE}
-
-# snap writes stuff under $CWD like a noob
-cd /tmp
 
 if which lsb_release; then
     export DEBIAN_FRONTEND=noninteractive
@@ -11,6 +7,8 @@ if which lsb_release; then
     apt-get -y install $(cat $(lsb_release -i -s)-$(lsb_release -r -s)-packages.txt)
 
     # install kubectl
+    # snap writes stuff under $CWD like a noob
+    cd /tmp
     snap install kubectl --classic
 fi
 
