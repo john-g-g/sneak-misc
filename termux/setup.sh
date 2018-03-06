@@ -1,7 +1,9 @@
 #!/bin/bash
 
 PKGS="
+    bash-completion
     byobu
+    mosh
     vim
 "
 
