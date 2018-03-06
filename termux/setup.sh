@@ -14,6 +14,7 @@ PKGS="
     mosh
     vim
     wget
+    proot
 "
 
 apt update
@@ -23,3 +24,4 @@ apt -y autoremove
 
 git config --global user.email jp@eeqj.com
 git config --global user.name "Jeffrey Paul"
+
