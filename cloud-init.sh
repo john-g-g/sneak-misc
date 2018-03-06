@@ -4,8 +4,8 @@
 
 ##cloud-config
 #runcmd:
-#  - curl -fsSL https://raw.githubusercontent.com/sneak/hacks/master/init.sh | bash
-  
+#  - curl -fsSL https://raw.githubusercontent.com/sneak/hacks/master/cloud-init.sh | bash
+
 #exec 1 2>&1 | tee -a ${LOG_FILE}
 
 export DEBIAN_FRONTEND=noninteractive
@@ -21,21 +21,28 @@ fi
 # run the rest as sneak:
 sudo -H -u sneak bash <<EOF
 
-if [[ ! -d /home/sneak/.ssh ]]; then
-    mkdir -p /home/sneak/.ssh
+export HOME=/home/sneak
+
+if [[ ! -d ~/.ssh ]]; then
+    mkdir -p ~/.ssh
 fi
 
-if [[ ! -e /home/sneak/.ssh/sneak.keys ]]; then
-    cd /home/sneak/.ssh && \
+if [[ ! -e ~/.ssh/sneak.keys ]]; then
+    cd ~/.ssh && \
     wget https://github.com/sneak.keys && \
     cat *.keys > authorized_keys
 fi
 
-if [[ ! -d /home/sneak/hacks ]]; then
-    cd /home/sneak
+if [[ ! -d ~/hacks ]]; then
+    cd ~
     git clone https://github.com/sneak/hacks.git
 fi
 
-rsync -avP /home/sneak/hacks/homedir.skel/ /home/sneak/
+mkdir -p ~/.local/bashrc.d
+mkdir -p ~/.local/profile.d
 
+mv ~/.profile ~/.local/profile.d/999.distro.profile.sh
+mv ~/.bashrc ~/.local/bashrc.d/999.distro.bashrc.sh
+
+rsync -avP /home/sneak/hacks/homedir.skel/ /home/sneak/
 EOF
