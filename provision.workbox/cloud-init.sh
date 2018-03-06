@@ -4,7 +4,7 @@
 
 ##cloud-config
 #runcmd:
-#  - curl -fsSL https://raw.githubusercontent.com/sneak/hacks/master/cloud-init.sh | bash
+#  - curl -fsSL https://raw.githubusercontent.com/sneak/hacks/master/provision.workbox/cloud-init.sh | bash
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
