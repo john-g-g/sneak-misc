@@ -7,8 +7,8 @@ apt-get -y upgrade
 apt-get -y install vim byobu screen build-essential git
 
 if [[ ! -d /home/sneak ]]; then
-    mkdir -p /home/sneak
-    chown sneak:sneak /home/sneak
+    useradd -m sneak
+    usermod -a -G sudo sneak
 fi
 
 # run the rest as sneak:
@@ -16,7 +16,6 @@ sudo -H -u sneak bash <<EOF
 
 if [[ ! -d /home/sneak/.ssh ]]; then
     mkdir -p /home/sneak/.ssh
-    chown sneak:sneak /home/sneak/.ssh
 fi
 
 if [[ ! -e /home/sneak/.ssh/sneak.keys ]]; then
@@ -24,7 +23,6 @@ if [[ ! -e /home/sneak/.ssh/sneak.keys ]]; then
     wget https://github.com/sneak.keys && \
     mv authorized_keys authorized-keys-orig.keys && \
     cat *.keys > authorized_keys
-    chown sneak:sneak *
 fi
 
 if [[ ! -d /home/sneak/hacks ]]; then
