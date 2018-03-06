@@ -1,6 +1,9 @@
 #!/bin/bash
 #exec 1 2>&1 | tee -a ${LOG_FILE}
 
+# snap writes stuff under $CWD like a noob
+cd /tmp
+
 if which lsb_release; then
     export DEBIAN_FRONTEND=noninteractive
     apt-get update
@@ -11,7 +14,19 @@ if which lsb_release; then
     snap install kubectl --classic
 fi
 
+# DO agent for advanced monitoring
+curl -sSL https://agent.digitalocean.com/install.sh | sh
+
 pip3 install --upgrade pip
+
+# install docker CE
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg |
+    apt-key add -
+add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+apt-get update && apt-get install -y docker-ce
 
 # install gcloud
 export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"

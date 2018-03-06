@@ -1,10 +1,14 @@
+apt-transport-https
 bash-completion
 build-essential
 byobu
+ca-certificates
+curl
 git
 golang-go
 mosh
 python-pip
 python3-pip
 screen
+software-properties-common
 vim
