@@ -1,7 +1,14 @@
 #!/bin/sh
 
-# run as root
+# fetch and run this in cloud-init, viz:
 
+##cloud-config
+#runcmd:
+#  - curl -fsSL https://raw.githubusercontent.com/sneak/hacks/master/init.sh | bash
+  
+#exec 1 2>&1 | tee -a ${LOG_FILE}
+
+export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get -y upgrade
 apt-get -y install vim byobu screen build-essential git
@@ -21,7 +28,6 @@ fi
 if [[ ! -e /home/sneak/.ssh/sneak.keys ]]; then
     cd /home/sneak/.ssh && \
     wget https://github.com/sneak.keys && \
-    mv authorized_keys authorized-keys-orig.keys && \
     cat *.keys > authorized_keys
 fi
 
