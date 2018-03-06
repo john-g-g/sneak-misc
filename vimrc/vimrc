@@ -1,6 +1,3 @@
-#!/bin/sh
-
-cat > ~/.vimrc <<'EOF'
 "execute pathogen#infect()
 
 set number
@@ -98,9 +95,3 @@ let python_no_number_highlight = 1
 let python_space_error_highlight = 1
 
 let g:flake8_show_in_gutter=1  " show
-
-EOF
-
-mkdir -p ~/.vim/swap
-mkdir -p ~/.vim/backup
-mkdir -p ~/.vim/undo
