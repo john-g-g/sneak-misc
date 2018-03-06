@@ -11,7 +11,7 @@
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get -y upgrade
-apt-get -y install vim byobu screen build-essential git mosh
+apt-get -y install vim byobu screen build-essential git mosh bash-completion
 
 if [[ ! -d /home/sneak ]]; then
     useradd -m sneak
