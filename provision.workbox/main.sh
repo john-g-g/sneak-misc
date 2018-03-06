@@ -6,10 +6,14 @@ if which lsb_release; then
     apt-get update
     apt-get -y upgrade
     apt-get -y install $(cat $(lsb_release -i -s)-$(lsb_release -r -s)-packages.txt)
+
+    # install kubectl
+    snap install kubectl --classic
 fi
 
 pip3 install --upgrade pip
 
+# install docker-machine
 URLBASE="https://github.com/docker/machine/releases/download/v0.14.0"
 URL="$URLBASE/docker-machine-$(uname -s)-$(uname -m)"
 curl -L $URL > /usr/local/bin/docker-machine
