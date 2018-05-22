@@ -13,3 +13,4 @@ screen
 socat
 software-properties-common
 vim
+zfsutils-linux
