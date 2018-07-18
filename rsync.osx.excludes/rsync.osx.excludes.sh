@@ -12,6 +12,9 @@ OSX_RSYNC_HOME_EXCLUDE+=' --exclude=**/Pictures/Lightroom/Lightroom?Catalog-2?Sm
 OSX_RSYNC_HOME_EXCLUDE+=' --exclude=**/Library/Caches'
 OSX_RSYNC_HOME_EXCLUDE+=' --exclude=**/Library/Mail'
 OSX_RSYNC_HOME_EXCLUDE+=' --exclude=**/Library/Homebrew'
+OSX_RSYNC_HOME_EXCLUDE+=' --exclude=**/Pictures/Photos?Library.photoslibrary'
+OSX_RSYNC_HOME_EXCLUDE+=' --exclude=**/Library/Application?Support/Google'
+
 export OSX_RSYNC_HOME_EXCLUDE
 
 OSX_RSYNC_APPLICATIONS_EXCLUDE=""
