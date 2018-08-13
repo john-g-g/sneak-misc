@@ -1,0 +1,37 @@
+#!/bin/bash
+
+function do_osx_setup {
+    cc
+
+    if [[ ! -d "$HOME/tmp" ]]; then
+        mkdir "$HOME/tmp"
+    fi
+
+    if [[ ! -d "$HOME/tmp/osximage" ]]; then
+        git clone https://github.com/sneak/osximage.git "$HOME/tmp/osximage.tmp" && \
+        mv "$HOME/tmp/osximage.tmp" "$HOME/tmp/osximage"
+    fi
+
+    if [[ -d "$HOME/tmp/osximage" ]]; then
+        cd "$HOME/tmp/osximage/custompkg/root/etc/skel"
+        if [[ ! -d /etc/skel ]]; then
+	    sudo rsync -avP ./ /etc/skel/
+        fi
+        if [[ -d /etc/skel ]]; then
+	    rsync -avP /etc/skel/ "$HOME"
+        fi
+    fi
+
+    for FN in $HOME/Library/user-setup/*.sh ; do
+        echo "new-user-setup: starting $(basename $FN)..."
+        bash "$FN" 2>&1 | tee -a $HOME/Library/Logs/user-setup.log
+        rm "$FN"
+        echo "new-user-setup: removed $(basename $FN)..."
+    done
+}
+
+if [[ "$(uname)" = "Darwin" ]]; then
+    if [[ ! -e "$HOME/Library/profile.d" ]]; then
+        do_osx_setup
+    fi
+fi
