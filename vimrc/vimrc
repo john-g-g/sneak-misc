@@ -28,6 +28,9 @@ set backup
 set writebackup
 set undofile
 
+set showbreak=\ \ \ \ 
+set linebreak
+
 au BufRead,BufNewFile *.go set filetype=go
 au BufRead,BufNewFile *.coffee set filetype=coffee
 
