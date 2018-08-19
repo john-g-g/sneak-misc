@@ -1,7 +1,5 @@
 #!/bin/bash
 
-exit 0 # FIXME wip
-
 function do_debian_stretch_setup {
     # FIXME assumes amd64
     export DEBIAN_FRONTEND=noninteractive
@@ -82,3 +80,5 @@ function do_setup {
         fi
     fi
 }
+
+do_setup
