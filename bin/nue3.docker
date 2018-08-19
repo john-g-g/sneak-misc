@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [[ ! -d $HOME/tmp ]]; then
+    mkdir $HOME/tmp
+fi
+
+DOCKER_HOST=unix://$HOME/tmp/docker.sock
+if ! docker ps 2>&1 >/dev/null ; then
+    rm $HOME/tmp/docker.sock
+    ssh -nNT -L $HOME/tmp/docker.sock:/var/run/docker.sock root@nue3.eeqj.de
+fi
+
+echo export DOCKER_HOST=unix://$HOME/tmp/docker.sock
