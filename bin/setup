@@ -2,6 +2,44 @@
 
 exit 0 # FIXME wip
 
+function do_debian_stretch_setup {
+    # FIXME assumes amd64
+    export DEBIAN_FRONTEND=noninteractive
+
+    export PACKAGES="
+        byobu
+        command-not-found
+        dnsutils
+        inetutils-ping
+        man-db
+        mosh
+        nmap
+        runit
+        runit-systemd
+        wget
+    "
+
+    sudo apt update
+    sudo apt install -y $PACKAGES
+
+    if ! which docker 2>&1 >/dev/null ;then
+        sudo apt -y install \
+            apt-transport-https \
+            ca-certificates \
+            curl \
+            gnupg2 \
+            software-properties-common
+        curl -fsSL https://download.docker.com/linux/debian/gpg |
+            sudo apt-key add -
+        sudo add-apt-repository \
+            "deb [arch=amd64] https://download.docker.com/linux/debian \
+            $(lsb_release -cs) \
+            stable"
+        sudo apt update
+        sudo apt install -y docker-ce
+    fi
+}
+
 function do_osx_setup {
     cc
 
@@ -32,8 +70,15 @@ function do_osx_setup {
     done
 }
 
-if [[ "$(uname)" = "Darwin" ]]; then
-    if [[ ! -e "$HOME/Library/profile.d" ]]; then
-        do_osx_setup
+function do_setup {
+
+    if [[ "$(lsb_release -c -s)" = "stretch" ]]; then
+        do_debian_stretch_setup
     fi
-fi
+
+    if [[ "$(uname)" = "Darwin" ]]; then
+        if [[ ! -e "$HOME/Library/profile.d" ]]; then
+            do_osx_setup
+        fi
+    fi
+}
