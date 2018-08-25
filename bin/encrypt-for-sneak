@@ -24,8 +24,9 @@ KEYS+=" 27CF8E00190D7AF340D8AE55A6C1C5C2083CB579"
 
 GARGS=""
 GARGS+=" --trust-model always"
-GARGS+=" --compress-algo bzip2"
-GARGS+=" --bzip2-compress-level 9"
+#GARGS+=" --compress-algo bzip2"
+GARGS+=" --compress-algo none"
+#GARGS+=" --bzip2-compress-level 9"
 
 for KEY in $KEYS ; do
     if ! gpg --list-key $KEY 2>&1 > /dev/null ; then
