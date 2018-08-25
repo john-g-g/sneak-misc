@@ -1,0 +1,12 @@
+{
+  "author": "sneak",
+  "bugs": {},
+  "gx": {},
+  "gxVersion": "0.12.1",
+  "language": "go",
+  "license": "",
+  "name": "gopakketo",
+  "releaseCmd": "git commit -a -m \"gx publish $VERSION\"",
+  "version": "0.0.0"
+}
+
