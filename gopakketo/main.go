@@ -1,4 +1,8 @@
-// based on
+// gpk, go reimplementation of the fast async port scanner
+// scanrand from dan kaminsky's pakketo keiretsu project
+// by sneak <sneak@sneak.berlin>
+
+// implementation based on
 // https://github.com/akrennmair/gopcap/blob/master/tools/pcaptest/pcaptest.go
 
 package main
