@@ -96,6 +96,8 @@ func send(device *string, targetlist *string, portlist *string) {
 }
 
 func sendSyn(device *string, sport uint16, dst uint32, dport uint16) {
+    // TODO(sneak)
+    // https://www.devdungeon.com/content/packet-capture-injection-and-analysis-gopacket#creating-sending-packets
 
 }
 
