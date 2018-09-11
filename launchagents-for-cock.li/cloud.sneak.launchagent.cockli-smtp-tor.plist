@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>cloud.sneak.launchagent.cockli-smtp-tor</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/sneak/Library/Homebrew/bin/socat</string>
+        <string>TCP-LISTEN:22587,reuseaddr,fork</string>
+	<string>SOCKS4A:127.0.0.1:mail.cockmailwwfvrtqj.onion:587,socksport=9050</string>
+    </array>
+    <key>StandardErrorPath</key>
+    <string>/Users/sneak/Library/Homebrew/var/log/socat.cockli.smtp-tor.log</string>
+  </dict>
+</plist>
