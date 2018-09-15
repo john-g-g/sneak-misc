@@ -10,7 +10,7 @@ O2_COLOR = \033[32;01m
 PREFIX = "$(O2_COLOR)==>$(O1_COLOR)"
 SUFFIX = "$(NO_COLOR)"
 
-default: backup
+default: clean
 
 backup: clean mailoffsite databackup
 
