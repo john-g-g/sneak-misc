@@ -1,0 +1,39 @@
+#!/bin/bash
+
+export PATH="$HOME/Library/Homebrew/opt/gettext/bin:$PATH"
+
+TS=$(date -u +%Y%m%d-%H%M%SZ)
+
+BASE="s3://sneak-batch-inputs"
+
+JOBSCRIPT="$BASE/$TS/job.sh"
+
+aws s3 --region us-east-1 cp $1 $JOBSCRIPT
+
+read -r JOBJSON <<EOF
+{
+  "jobName": "$TS-job",
+  "jobQueue": "sneak-batch-queue",
+  "jobDefinition": "fetch-and-run",
+  "containerOverrides": {
+    "environment": [
+      {
+        "BATCH_FILE_TYPE": "",
+        "value": "script"
+      },
+      {
+        "BATCH_FILE_URL": "",
+        "value": "$JOBSCRIPT"
+      }
+    ]
+  }
+}
+EOF
+
+aws batch submit-job \
+    --job-name $TS-job \
+    --region us-west-2 \
+    --job-queue sneak-batch-queue \
+    --job-definition fetch-and-run \
+    --container-overrides \
+    vcpus=1,memory=1024,environment="[{name=BATCH_FILE_TYPE,value=script},{name=BATCH_FILE_URL,value=$JOBSCRIPT}]"
