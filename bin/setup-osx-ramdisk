@@ -1,0 +1,12 @@
+#!/bin/bash
+# from https://schof.org/2014/01/10/putting-my-virtualbox-vagrant-virtual-machines-on-a-ramdisk
+# Set up RAM disk for VirtualBox Images
+SIZE_IN_GB=14
+SIZE_IN_SECTORS=`echo "$SIZE_IN_GB*1024^3/512" | bc`
+if [ -d /Volumes/RAMDISK ]; then
+    echo "RAMDISK for VirtualBox images already exists. Doing nothing."
+else
+    echo "Ramdisk does not exist."
+    echo "Creating ramdisk."
+    diskutil erasevolume HFS+ "RAMDISK" `hdiutil attach -nomount ram://$SIZE_IN_SECTORS`
+fi
