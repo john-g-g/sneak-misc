@@ -8,4 +8,4 @@ if [[ -e ./SHASUMS ]]; then
 fi
 
 shasum * > SHASUMS
-gpg -u $SNEAK_KEY_ID -a --output SHASUMS.asc --detach-sig SHASUMS
+gpg -u $SNEAK_KEY_ID -a --output SHASUMS.sig --detach-sig SHASUMS
