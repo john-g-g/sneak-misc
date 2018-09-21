@@ -7,5 +7,5 @@ if [[ -e ./SHASUMS ]]; then
     exit 1
 fi
 
-shasum * > SHASUMS
+find . -type f ! -name 'SHASUMS' -exec shasum {} \; >> SHASUMS
 gpg -u $SNEAK_KEY_ID -a --output SHASUMS.sig --detach-sig SHASUMS
