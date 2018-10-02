@@ -17,6 +17,8 @@ PKGS="
     daemontools
     vim
     wget
+    pv
+    pbzip2
     zfsutils-linux
     zfs-auto-snapshot
 "
