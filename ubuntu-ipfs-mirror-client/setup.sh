@@ -53,8 +53,9 @@ sleep 5
 
 if [[ ! -d $HOME/.ipfs ]]; then
     mkdir -p $HOME/.ipfs
-    echo -n '/ip4/127.0.0.1/tcp/5001' > $HOME/.ipfs/api
 fi
+
+echo -n '/ip4/127.0.0.1/tcp/5001' > $HOME/.ipfs/api
 
 dpkg --remove-architecture i386
 rm -rf /var/lib/apt/lists/*

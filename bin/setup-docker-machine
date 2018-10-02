@@ -1,4 +1,10 @@
 #!/bin/bash
 
 docker-machine rm -f default
-docker-machine create default --virtualbox-memory 32768 --virtualbox-cpu-count "-1" --virtualbox-no-share
+
+# 100GiB disk, 32GiB ram, all cpus
+docker-machine create default \
+    --virtualbox-disk-size 100000 \
+    --virtualbox-memory 32768 \
+    --virtualbox-cpu-count "-1" \
+    --virtualbox-no-share
