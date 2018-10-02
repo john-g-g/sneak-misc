@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 export TRANSPORTURL="https://raw.githubusercontent.com/JaquerEspeis/apt-transport-ipfs/master/ipfs"
 
 export DEBIAN_FRONTEND=noninteractive
@@ -36,7 +38,7 @@ chmod +x /etc/service/ipfsd/run
 
 NS="Qme4tKNduvAgQKN6nKjyH7KjyMdJwyPHfeVMp2EUS6b3J1"
 MUMR="main universe multiverse restricted"
-cat > /etc/apt/sources.list <<__EOF__
+cat > /etc/apt/sources.list.new <<__EOF__
 deb ipfs:/ipns/$NS $(lsb_release -cs)           $MUMR
 deb ipfs:/ipns/$NS $(lsb_release -cs)-updates   $MUMR
 deb ipfs:/ipns/$NS $(lsb_release -cs)-security  $MUMR
@@ -49,6 +51,12 @@ fi
 mv /etc/apt/sources.list.new /etc/apt/sources.list
 sleep 5
 
+if [[ ! -d $HOME/.ipfs ]]; then
+    mkdir -p $HOME/.ipfs
+    echo -n '/ip4/127.0.0.1/tcp/5001' > $HOME/.ipfs/api
+fi
+
 dpkg --remove-architecture i386
 rm -rf /var/lib/apt/lists/*
 apt update
+
