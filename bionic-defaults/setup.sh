@@ -18,6 +18,7 @@ PKGS="
     less
     lsof
     mosh
+    ntp
     pbzip2
     pv
     runit
