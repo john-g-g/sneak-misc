@@ -11,6 +11,7 @@ PKGS="
     command-not-found
     cryptsetup-bin
     daemontools
+    golang-go
     iptables-persistent
     iptraf-ng
     jq
