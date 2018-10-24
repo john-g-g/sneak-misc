@@ -1,0 +1,13 @@
+{
+  "name": "steem-claim-account",
+  "version": "1.0.0",
+  "
+    ain": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@steemit/steem-js": "https://github.com/sneak/steem-js#cf236435d36f13d921b10f05497b7d0653e8caf1"
+  },
+  "scripts": {
+    "main": "DEBUG=* node index.js"
+  }
+}
