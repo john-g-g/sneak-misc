@@ -9,24 +9,24 @@ NOW="`date +%Y%m%d.%H%M%S`"
 
 BACKUPDEST=${BACKUPDEST:-"/Volumes/ExternalBackup/sneak.backup"}
 
-RSYNC="rsync.3.0.9"
+RSYNC="$HOME/Library/Homebrew/bin/rsync"
 OPTS="-rlptDPSyzh --no-owner --no-group --delete-excluded --delete"
 
 RE=""
 RE+=" --exclude=.cache/"
 RE+=" --exclude=/Desktop/" # desktop is like a visible tempdir.
 RE+=" --exclude=/Library/Safari/"
-RE+=" --exclude=/Downloads/" 
+RE+=" --exclude=/Downloads/"
 RE+=" --exclude=/Library/Application?Support/Ableton/"
 # evernote syncs to its server:
 RE+=" --exclude=/Library/Application?Support/Evernote/"
 RE+=" --exclude=/Library/Application?Support/InsomniaX/"
 RE+=" --exclude=/Music/iTunes/Album?Artwork/"
 RE+=" --exclude=/Documents/Steam?Content/"
-RE+=" --exclude=/.dropbox/" 
-RE+=" --exclude=/Documents/Dropbox/.dropbox.cache/" 
-RE+=" --exclude=/.cpan/build/" 
-RE+=" --exclude=/.cpan/sources/" 
+RE+=" --exclude=/.dropbox/"
+RE+=" --exclude=/Documents/Dropbox/.dropbox.cache/"
+RE+=" --exclude=/.cpan/build/"
+RE+=" --exclude=/.cpan/sources/"
 RE+=" --exclude=/Library/Logs/"
 # keep your mail on the server!
 RE+=" --exclude=/Library/Mail/"
@@ -50,6 +50,7 @@ RE+=" --exclude=/Library/Preferences/SDMHelpData/"
 RE+=" --exclude=/Receivd/"
 RE+=" --exclude=/Library/Application?Support/Steam/SteamApps/"
 RE+=" --exclude=/VirtualBox?VMs/"
+
 MINRE=""
 MINRE+=" --exclude=/.fseventsd/"
 MINRE+=" --exclude=/.Spotlight-V100/"
@@ -62,21 +63,16 @@ MINRE+=" --exclude=.DS_Store"
 
 RE+=" ${MINRE}"
 
-if [ ! -e "${BACKUPDEST}" ]; then
-    echo "backup destination $BACKUPDEST not available!" > /dev/stderr
-    exit 127
-fi
-
 RETVAL=255
 while [ $RETVAL -ne 0 ]; do
-    $RSYNC $OPTS $RE ${HOME}/ ${BACKUPDEST}/Home/ 
+    $RSYNC $OPTS $RE ${HOME}/ ${BACKUPDEST}/Home/
     RETVAL=$?
         sleep 1;
 done
 
 RETVAL=255
 while [ $RETVAL -ne 0 ]; do
-    $RSYNC $OPTS /Applications/ ${BACKUPDEST}/Applications/ 
+    $RSYNC $OPTS /Applications/ ${BACKUPDEST}/Applications/
     RETVAL=$?
     sleep 1;
 done
