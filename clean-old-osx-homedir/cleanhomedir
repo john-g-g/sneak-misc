@@ -1,0 +1,23 @@
+#!/bin/bash
+
+DIR="$1"
+
+if [[ $# -ne 1 ]]; then
+    echo "usage: $0 <homedir>" > /dev/stderr
+    exit 1
+fi
+
+ABS="$(cd $DIR && pwd -P)"
+
+if [[ ! -d "$ABS/Library" ]]; then
+    echo "Could not find an osx homedir at path $ABS" >> /dev/stderr
+    exit 1
+fi
+
+RM="echo rm"
+
+$RM "$ABS/Library/Application Support/Adobe"
+$RM "$ABS/Library/Application Support/Slack"
+$RM "$ABS/Library/Screen Savers"
+$RM "$ABS/Library/Containers/com.apple.appstore"
+$RM "$ABS/Library/Containers/com.apple.Photos"
