@@ -1,0 +1,18 @@
+#!/bin/bash
+
+YYYYMM="$(date -u +%Y%m)"
+TS="$(date -u +%F-%T%z)"
+RECDIR="$HOME/Documents/sync/recsessions"
+
+if [[ ! -d "$RECDIR" ]]; then
+    echo "recdir $RECDIR not found." > /dev/stderr
+    exit 1
+fi
+
+if [[ ! -d "$RECDIR/$YYYYMM" ]]; then
+    mkdir -p "$RECDIR/$YYYYMM"
+fi
+
+OUTPUT="$RECDIR/$YYYYMM/session.$TS.json"
+
+exec asciinema rec -w 5 "$OUTPUT"
