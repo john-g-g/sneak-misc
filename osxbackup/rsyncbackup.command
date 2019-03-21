@@ -20,7 +20,7 @@ RSYNC="$HOME/Library/Homebrew/bin/rsync"
 #OPTS="-rlptDPSyzh --numeric-ids --no-owner --no-group --delete-excluded --delete"
 OPTS=""
 OPTS+=" -avP --skip-compress=$RSYNC_SKIP_COMPRESS"
-OPTS+=" --numeric-ids --no-owner --no-group --delete-excluded --delete"
+OPTS+=" --numeric-ids --no-owner --no-group --delete-excluded --delete-after"
 
 RE=""
 RE+=" --exclude=/.minikube/cache/"

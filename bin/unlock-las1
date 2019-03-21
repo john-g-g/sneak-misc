@@ -1,0 +1,10 @@
+#!/bin/bash
+
+KEYFILE="$HOME/Documents/sync/secrets/luks/las1.eeqj.de.luks.txt.gpg"
+
+if [[ ! -e "$KEYFILE" ]]; then
+    echo "wrong box!" >> /dev/stderr
+    exit 1
+fi
+
+gpg -d "$KEYFILE" | ssh root@las1.local "bash /root/unlock_disks"
