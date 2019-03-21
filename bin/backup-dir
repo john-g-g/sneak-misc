@@ -18,8 +18,8 @@ FN="$TS.$HOSTNAME.$UUID.$DIRBASENAME"
 
 BACKUPDEST=notfound
 for DIR in /Volumes/* ; do
-    if [[ -e "$DIR/backup/.sneakbackup" ]]; then
-        BACKUPDEST="$DIR/backup"
+    if [[ -e "$DIR/berlin.sneak/backup" ]]; then
+        BACKUPDEST="$DIR/berlin.sneak/backup"
     fi
 done
 
